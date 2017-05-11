@@ -1,28 +1,20 @@
 package daxidz.ch.wifiboard;
 
-import android.content.Context;
 import android.os.AsyncTask;
-import android.view.KeyEvent;
-import android.widget.Toast;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import javax.xml.datatype.Duration;
+import static daxidz.ch.wifiboard.Protocol.END_COMMAND;
 
 /**
  * Created by David on 07.05.2017.
  */
 
-public class Client extends AsyncTask<Integer, Void, Boolean> {
+public class Client extends AsyncTask<Void, Void, Boolean> {
 
-
-    private final int PORT = 8989;
-
-    private final int PORT_MULTICAST = 57850;
 
     private int port;
     private String pcIP;
@@ -38,7 +30,7 @@ public class Client extends AsyncTask<Integer, Void, Boolean> {
     }
 
     @Override
-    public Boolean doInBackground(Integer... e) {
+    public Boolean doInBackground(Void... e) {
         try {
             socket = new Socket(pcIP, port);
             return true;
@@ -60,8 +52,19 @@ public class Client extends AsyncTask<Integer, Void, Boolean> {
         }
     }
 
-    public void send(char keycode) {
-        out.write(keycode);
-        out.flush();
+    public void disconnect() {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        out.close();
+    }
+
+    public void send(String msg) {
+        if (isConnected) {
+            out.println(msg + END_COMMAND);
+            out.flush();
+        }
     }
 }
